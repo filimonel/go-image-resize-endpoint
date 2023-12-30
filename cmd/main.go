@@ -7,7 +7,9 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	ginadapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
+	"github.com/filimonel/go-image-resize-endpoint/internal/middleware"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/cors"
 )
 
 var ginLambda *ginadapter.GinLambda
@@ -17,7 +19,7 @@ func init() {
 	r := gin.Default()
 
 	// Set Cors
-	// r.Use(cors.New(middleware.SetCors()))
+	r.Use(cors.New(middleware.SetCors()))
 
 	// Routes & Handlers
 	r.GET("/", func(c *gin.Context) {
