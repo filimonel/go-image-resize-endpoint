@@ -29,7 +29,7 @@ func init() {
 	r.MaxMultipartMemory = 2 << 20
 
 	// Define the rate limit rules
-	limiter := rate.NewLimiter(rate.Every(time.Hour), 5)
+	limiter := rate.NewLimiter(rate.Every(time.Hour), 10)
 
 	// Routes & Handlers
 	r.GET("/", func(c *gin.Context) {
