@@ -10,6 +10,9 @@ functions:
     handler: bin/main
     events:
       - http:
+          path: /upload
+          method: POST
+      - http:
           path: /
           method: GET
 package:
