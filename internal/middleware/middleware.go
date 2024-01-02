@@ -7,7 +7,7 @@ import (
 // Add CORS headers for json responses.
 func SetCors() cors.Config {
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:5173"}
+	config.AllowOrigins = []string{"http://localhost:5173", "https://filimone.dev"}
 
 	return config
 }
