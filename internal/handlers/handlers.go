@@ -36,23 +36,6 @@ func GenerateImageSizesHandler(c *gin.Context) {
 	img3 := imaging.Resize(img, 1280, 720, imaging.Lanczos)
 	img4 := imaging.Resize(img, 1920, 1080, imaging.Lanczos)
 
-	encodeImage := func(img image.Image, format string) (string, error) {
-		buf := new(bytes.Buffer)
-		switch format {
-		case "jpeg", "jpg":
-			if err := jpeg.Encode(buf, img, nil); err != nil {
-				return "", err
-			}
-		case "png":
-			if err := png.Encode(buf, img); err != nil {
-				return "", err
-			}
-		default:
-			return "", fmt.Errorf("unsupported format: %s", format)
-		}
-		return base64.StdEncoding.EncodeToString(buf.Bytes()), nil
-	}
-
 	formats := strings.Split(header.Filename, ".")
 	imgFormat := formats[len(formats)-1]
 
@@ -70,4 +53,25 @@ func GenerateImageSizesHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"images": []string{img1Base64, img2Base64, img3Base64, img4Base64},
 	})
+}
+
+func encodeImage(img image.Image, format string) (string, error) {
+	buf := new(bytes.Buffer)
+	switch format {
+	case "jpeg", "jpg":
+		err := jpeg.Encode(buf, img, nil)
+
+		if err != nil {
+			return "", err
+		}
+	case "png":
+		err := png.Encode(buf, img)
+
+		if err != nil {
+			return "", err
+		}
+	default:
+		return "", fmt.Errorf("unsupported format: %s", format)
+	}
+	return base64.StdEncoding.EncodeToString(buf.Bytes()), nil
 }
