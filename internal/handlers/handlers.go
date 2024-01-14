@@ -33,7 +33,7 @@ func GenerateImageSizesHandler(c *gin.Context) {
 		return
 	}
 
-	// Generate image sizes and store them to be encoded later
+	// Generate image sizes and store them into memory to be encoded later
 	img1 := imaging.Resize(img, 150, 150, imaging.Lanczos)
 	img2 := imaging.Resize(img, 800, 600, imaging.Lanczos)
 	img3 := imaging.Resize(img, 1280, 720, imaging.Lanczos)
@@ -44,7 +44,7 @@ func GenerateImageSizesHandler(c *gin.Context) {
 	formats := strings.Split(header.Filename, ".")
 	imgFormat := formats[len(formats)-1]
 
-	// Encode and store the generated images
+	// Encode and store the base64 generated images in memory
 	img1Base64, err := encodeImage(img1, imgFormat)
 	if err != nil {
 		log.Println(err)
@@ -63,15 +63,15 @@ func GenerateImageSizesHandler(c *gin.Context) {
 }
 
 func encodeImage(img image.Image, format string) (string, error) {
-	// Create buffer to hold the []bytes copy of the image
+	// Create buffer to hold the []byte copy of the image
 	buf := new(bytes.Buffer)
 
 	// Check Image format and run the correct image encoding
 	switch format {
 	case "jpeg", "jpg":
 		// Directly encode the image that's been passed into the function
-		// Create a []bytes representation(copy) of the image
-		// Write the []bytes copy to the buffer
+		// Create a []byte representation(copy) of the image
+		// Write the []byte copy of the image to the buffer
 		err := jpeg.Encode(buf, img, nil)
 
 		if err != nil {
@@ -87,8 +87,8 @@ func encodeImage(img image.Image, format string) (string, error) {
 		return "", fmt.Errorf("unsupported format: %s", format)
 	}
 
-	// NOTE: buf.Bytes() is a reference to buffer
-	// Directly convert the image data([]bytes) inside the buffer to base64
-	// Return the base64 image
+	// NOTE: buf.Bytes() is a reference to buffer we opened at the top of the function.
+	// Directly convert the image data([]byte) inside the buffer to a base64 string
+	// Return the Base64 converted image.
 	return base64.StdEncoding.EncodeToString(buf.Bytes()), nil
 }
