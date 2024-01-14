@@ -16,6 +16,7 @@ import (
 )
 
 func GenerateImageSizesHandler(c *gin.Context) {
+	// Store the image file(binary data), header and err
 	file, header, err := c.Request.FormFile("image")
 	if err != nil {
 		log.Println(err)
@@ -24,6 +25,7 @@ func GenerateImageSizesHandler(c *gin.Context) {
 	}
 	defer file.Close()
 
+	// Decode the image binary, store the decoded Image and err
 	img, _, err := image.Decode(file)
 	if err != nil {
 		log.Println(err)
@@ -31,14 +33,18 @@ func GenerateImageSizesHandler(c *gin.Context) {
 		return
 	}
 
+	// Generate image sizes and store them to be encoded later
 	img1 := imaging.Resize(img, 150, 150, imaging.Lanczos)
 	img2 := imaging.Resize(img, 800, 600, imaging.Lanczos)
 	img3 := imaging.Resize(img, 1280, 720, imaging.Lanczos)
 	img4 := imaging.Resize(img, 1920, 1080, imaging.Lanczos)
 
+	// Grab the filename, so that we can extract the image format(e.g. .jpg, .png, etc)
+	// The image format will be passed into the encodeImage() function
 	formats := strings.Split(header.Filename, ".")
 	imgFormat := formats[len(formats)-1]
 
+	// Encode and store the generated images
 	img1Base64, err := encodeImage(img1, imgFormat)
 	if err != nil {
 		log.Println(err)
@@ -50,15 +56,22 @@ func GenerateImageSizesHandler(c *gin.Context) {
 	img3Base64, _ := encodeImage(img3, imgFormat)
 	img4Base64, _ := encodeImage(img4, imgFormat)
 
+	// Send Response back to the client
 	c.JSON(http.StatusOK, gin.H{
 		"images": []string{img1Base64, img2Base64, img3Base64, img4Base64},
 	})
 }
 
 func encodeImage(img image.Image, format string) (string, error) {
+	// Create buffer to hold the []bytes copy of the image
 	buf := new(bytes.Buffer)
+
+	// Check Image format and run the correct image encoding
 	switch format {
 	case "jpeg", "jpg":
+		// Directly encode the image that's been passed into the function
+		// Create a []bytes representation(copy) of the image
+		// Write the []bytes copy to the buffer
 		err := jpeg.Encode(buf, img, nil)
 
 		if err != nil {
@@ -73,5 +86,9 @@ func encodeImage(img image.Image, format string) (string, error) {
 	default:
 		return "", fmt.Errorf("unsupported format: %s", format)
 	}
+
+	// NOTE: buf.Bytes() is a reference to buffer
+	// Directly convert the image data([]bytes) inside the buffer to base64
+	// Return the base64 image
 	return base64.StdEncoding.EncodeToString(buf.Bytes()), nil
 }
