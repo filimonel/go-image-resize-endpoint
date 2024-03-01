@@ -26,10 +26,10 @@ func init() {
 	r.Use(cors.New(middleware.SetCors()))
 
 	// Set memory limit for multipart forms
-	r.MaxMultipartMemory = 2 << 20
+	r.MaxMultipartMemory = 2 << 15
 
 	// Define the rate limit rules
-	limiter := rate.NewLimiter(rate.Every(time.Hour), 10)
+	limiter := rate.NewLimiter(rate.Every(time.Hour), 5)
 
 	// Routes & Handlers
 	r.GET("/", func(c *gin.Context) {
